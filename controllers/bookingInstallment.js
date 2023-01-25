@@ -49,7 +49,7 @@ const bookingInstallment = async (req, res) => {
 
 
       return res.status(200).json({
-        msg: "product add successfully...",
+        msg: "installment paid successfully...",
         product: [stripeProduct, invoiceItem, subscription]
       });
 
