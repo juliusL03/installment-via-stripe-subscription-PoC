@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "PC",
+    "password": "admin",
+    "database": "sequelize_tutorial",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "PC",
+    "password": "admin",
+    "database": "sequelize_tutorial",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "PC",
+    "password": "admin",
+    "database": "sequelize_tutorial",
+    "host": "localhost",
+    "dialect": "postgres"
+  }
+}
