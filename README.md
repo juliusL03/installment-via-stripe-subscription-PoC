@@ -3,6 +3,9 @@
 ## Introduction
 The experience that we want to share to our valued customer has a possibility that some of it can't afford.
 
+By using stripe subscription we can offer an installment of our product that they might to enjoy.
+
+We can give a payment of upfront with an installment weekly er month.
 
 ## use for testing in postman
 
