@@ -1,6 +1,10 @@
 # installment-via-stripe-subscription-PoC
 
-# use for testing in postman
+## Introduction
+The experience that we want to share to our valued customer has a possibility that some of it can't afford.
+
+
+## use for testing in postman
 
 **POST:**
 ```javascript
@@ -9,8 +13,8 @@ localhost:4242/booking/installment
 **Body:**
 ```javascript
 {
-    "name": "boat#12-installment",
-    "description": "boat#12-installment",
+    "name": "product#12-installment",
+    "description": "product#12-installment",
     "prices": [
         {
         "unit_amount": 70000,
