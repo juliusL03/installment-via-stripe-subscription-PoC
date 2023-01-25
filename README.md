@@ -7,6 +7,12 @@ By using stripe subscription we can offer an installment of our product that the
 
 We can give a payment of upfront with an installment weekly er month.
 
+## Run the development server:
+
+```bash
+npm run dev
+```
+
 ## use for testing in postman
 
 **POST:**
