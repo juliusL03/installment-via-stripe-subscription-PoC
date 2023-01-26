@@ -1,4 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const db = require("../models");
+const {monthsFromNow} = require('../utils/date');
 
 const bookingInstallment = async (req, res) => {
 
@@ -37,8 +39,9 @@ const bookingInstallment = async (req, res) => {
       });
 
       // create a subscription payment
-      const subscription = await stripe.subscriptions.create({
+      const stripeSubscription = await stripe.subscriptions.create({
         customer: process.env.CUSTOMER_ID,
+        cancel_at: monthsFromNow(2),
         items: [
           {
             price: subscriptionStripePrice.id,
@@ -46,11 +49,35 @@ const bookingInstallment = async (req, res) => {
         ],
         description: name + '-subscription'
       });
+      
+      let stripeInvoice = await stripe.invoices.retrieve(stripeSubscription.latest_invoice); 
 
+      if (stripeInvoice.status === 'open') {
+        stripeInvoice = await stripe.invoices.pay(stripeSubscription.latest_invoice);
+      }
+
+      let paymentStatus = {};
+
+      if (stripeSubscription.latest_invoice != null && stripeInvoice.status === 'paid') {
+          paymentStatus.installment = {
+            upfront: stripeInvoice.status,
+            second: 'pending',
+            third: 'pending'
+          }
+
+          await db.bookings.create({
+            paymentStatus,
+            transactions: stripeSubscription
+          });
+      }
 
       return res.status(200).json({
         msg: "installment paid successfully...",
-        product: [stripeProduct, invoiceItem, subscription]
+        stripeProduct,
+        invoiceItem, 
+        stripeSubscription,
+        stripeInvoice: stripeInvoice.lines.data,
+        paymentStatus,
       });
 
     } catch (err) {
