@@ -31,16 +31,52 @@ const bookingInstallment = async (req, res) => {
         product: stripeProduct.id,
       });
 
+      // try
+      const testClock = await stripe.testHelpers.testClocks.create({
+        frozen_time: parseInt(new Date().getTime() / 1000),
+      });
+      console.log('chkCus', testClock);
+      const customer = await stripe.customers.create({
+        test_clock: testClock.id
+      });
+      console.log('chkCus1', customer);
+      const paymentMethod = await stripe.paymentMethods.create({
+        type: 'card',
+        card: {
+          number: '4242424242424242',
+          exp_month: 11,
+          exp_year: 2024,
+          cvc: '314',
+        },
+      });
+      console.log('chkCus2', paymentMethod);
+      const attID = await stripe.paymentMethods.attach(
+        paymentMethod.id,
+        {customer: customer.id}
+      );
+      console.log('chkCus3', attID);
+
+       await stripe.customers.update(
+        customer.id, { // <-- your customer id from the request body
+        
+          invoice_settings: {
+            default_payment_method: attID.id, // <-- your payment method ID collected via Stripe.js
+          },
+      });
+    
+      //
+
+
       // create a invoice for upfront payment
       const invoiceItem = await stripe.invoiceItems.create({
-        customer: process.env.CUSTOMER_ID,
+        customer: customer.id,// process.env.CUSTOMER_ID,
         price: upfrontStripePrice.id,
         description: name + '-upfront'
       });
 
       // create a subscription payment
       const stripeSubscription = await stripe.subscriptions.create({
-        customer: process.env.CUSTOMER_ID,
+        customer: customer.id,//process.env.CUSTOMER_ID,
         cancel_at: monthsFromNow(2),
         items: [
           {
@@ -56,28 +92,28 @@ const bookingInstallment = async (req, res) => {
         stripeInvoice = await stripe.invoices.pay(stripeSubscription.latest_invoice);
       }
 
-      let paymentStatus = {};
+      // let paymentStatus = {};
 
-      if (stripeSubscription.latest_invoice != null && stripeInvoice.status === 'paid') {
-          paymentStatus.installment = {
-            upfront: stripeInvoice.status,
-            second: 'pending',
-            third: 'pending'
-          }
+      // if (stripeSubscription.latest_invoice != null && stripeInvoice.status === 'paid') {
+      //     paymentStatus.installment = {
+      //       upfront: stripeInvoice.status,
+      //       second: 'pending',
+      //       third: 'pending'
+      //     }
 
-          await db.bookings.create({
-            paymentStatus,
-            transactions: stripeSubscription
-          });
-      }
+      //     await db.bookings.create({
+      //       paymentStatus: paymentStatus,
+      //       transactions: stripeSubscription
+      //     });
+      // }
 
       return res.status(200).json({
         msg: "installment paid successfully...",
         stripeProduct,
         invoiceItem, 
         stripeSubscription,
-        stripeInvoice: stripeInvoice.lines.data,
-        paymentStatus,
+        stripeInvoice: stripeInvoice.lines.data
+        // paymentStatus,
       });
 
     } catch (err) {

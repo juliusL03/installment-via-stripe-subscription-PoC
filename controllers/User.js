@@ -1,5 +1,5 @@
 const db = require("../models");
-const stripe = require('stripe')('sk_test_51LBIdtBhmVsJlMNUTacy0uC7NoBsFZW04hytOVuFYqOmrc4ZYGEORpL3FneACCUKhZQTbvTawbm7zi2QLo2Q0iud00tx7x4FSC');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const add = async (req, res) => {
 
