@@ -29,10 +29,21 @@ const installment = async (req, res) => {
     eventType = req.body.type;
   }
   // noted
-  if (eventType === "invoice.upcoming") {
-    // console.log(`🔔  Payment received!`);
+  if (eventType === "invoice.payment_succeeded") {
     console.log('invoice', eventType, data);
+    // check customer
+    // check product
+    //update the booking payment status
+    // send a email
   }
+
+  if (eventType === "invoice.payment_failed") {
+    console.log('invoice', eventType, data);
+    // check customer
+    // check product
+    //update the booking payment status
+    // send a email
+  } 
   console.log('invoice-', data);
   res.sendStatus(200);
    

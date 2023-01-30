@@ -31,15 +31,15 @@ const bookingInstallment = async (req, res) => {
         product: stripeProduct.id,
       });
 
-      // try
+      // for testing
       const testClock = await stripe.testHelpers.testClocks.create({
         frozen_time: parseInt(new Date().getTime() / 1000),
       });
-      console.log('chkCus', testClock);
+
       const customer = await stripe.customers.create({
         test_clock: testClock.id
       });
-      console.log('chkCus1', customer);
+
       const paymentMethod = await stripe.paymentMethods.create({
         type: 'card',
         card: {
@@ -49,12 +49,11 @@ const bookingInstallment = async (req, res) => {
           cvc: '314',
         },
       });
-      console.log('chkCus2', paymentMethod);
+
       const attID = await stripe.paymentMethods.attach(
         paymentMethod.id,
         {customer: customer.id}
       );
-      console.log('chkCus3', attID);
 
        await stripe.customers.update(
         customer.id, { // <-- your customer id from the request body
@@ -64,9 +63,6 @@ const bookingInstallment = async (req, res) => {
           },
       });
     
-      //
-
-
       // create a invoice for upfront payment
       const invoiceItem = await stripe.invoiceItems.create({
         customer: customer.id,// process.env.CUSTOMER_ID,
@@ -77,13 +73,14 @@ const bookingInstallment = async (req, res) => {
       // create a subscription payment
       const stripeSubscription = await stripe.subscriptions.create({
         customer: customer.id,//process.env.CUSTOMER_ID,
-        cancel_at: monthsFromNow(2),
+        cancel_at: monthsFromNow(3), // 3months to pay
         items: [
           {
             price: subscriptionStripePrice.id,
           },
         ],
-        description: name + '-subscription'
+        description: name + '-subscription',
+        proration_behavior: 'none'
       });
       
       let stripeInvoice = await stripe.invoices.retrieve(stripeSubscription.latest_invoice); 
